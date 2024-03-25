@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { Box, Button, Card, Stack, TextField, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, Button, Card, Stack, TextField, Typography,Select,MenuItem } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import styled from "@emotion/styled";
+import axios from "axios";
 const VisuallyHiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
   clipPath: "inset(50%)",
@@ -20,7 +21,52 @@ const College = () => {
   const[password,setPassword]=useState('');
   const[address,setAddress]=useState('');
   const[number,setNumber]=useState('');
-  const[Photo,setPhoto]=useState('');
+  const[photo,setPhoto]=useState('');
+  const [placeData, setPlaceData] = useState([]);
+  const [placeId, setPlaceId] = useState('');
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const data = {
+    name:name,
+      placename:placeId,
+      password:password,
+      address:address,
+      email:email,
+      number:number,
+      photo:photo,
+
+
+    }; //usestate and schema name wrapped as object and it assigned to variable data
+    axios.post('http://localhost:5000/User', data)
+    .then((response) => {
+      console.log(response.data);
+    setPlaceId('')
+    setName('')
+    setAddress('')
+    setPassword('')
+    setEmail('')
+    setNumber('')
+    setPhoto('')
+
+    })
+  }
+
+
+  const fetchPlace = () => {
+    axios.get(`http://localhost:5000/Place/`).then((response) => {
+      console.log(response.data.places);
+      setPlaceData(response.data.places) 
+    })
+    .catch((error) => {
+      console.error('Error fetching place data:', error);
+    });
+  }
+
+
+  useEffect(() => {
+    fetchPlace()
+ }, [])
+
 
   return (
     <Box
@@ -41,6 +87,7 @@ const College = () => {
           justifyContent: "center",
           alignItems: "center",
         }}
+        component={'form'} onSubmit={handleSubmit}
       >
         <Box>
           <Stack spacing={2} direction="column" sx={{ m: 3 }}>
@@ -79,6 +126,23 @@ const College = () => {
           }}
           onChange={(event)=>setNumber(event.target.value)}
         />
+        <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                label="Place"
+                // onChange={handleChange}
+                onChange={(event)=>setPlaceId(event.target.value)}
+                value={placeId}
+              >
+              {/* //view list of districts  */}
+               {placeData.map((place, key) => (
+                  <MenuItem key={key} value={place._id}
+               >
+                  {place.placename}
+               </MenuItem>
+                ))}
+
+              </Select>
             <Button
               component="label"
               role={undefined}

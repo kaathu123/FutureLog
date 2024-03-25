@@ -29,21 +29,24 @@ const rows = [
   createData("Gingerbread", 356, 16.0, 49, 3.9),
 ];
 const Category = () => {
-  const[name,setName]=useState('');
+  const[categoryName, setCategoryName] = useState('');
 const handleSubmit = (event)=>{
   event.preventDefault()
 
   const postData={
-    categoryname:name,
+    categoryname:categoryName,
   }
-  axios.post('http://localhost:5000/Category/',postData)
+  axios.post('http://localhost:5000/Category',postData)
   .then((response)=>{
     console.log('post request successful:',response.data);
+    setCategoryName(); 
   })
   .catch((error)=>{
     console.error('error sending POST request:',error);
   });
 }
+
+
   return (
     
     <Box
@@ -72,7 +75,7 @@ const handleSubmit = (event)=>{
           Stream
         </Typography>
           <TextField id="standard-basic" label="Stream" variant="standard"             
-            onChange={(event)=>setName(event.target.value)}
+            onChange={(event)=>setCategoryName(event.target.value)}
           />
           <Button variant="contained" type="submit">Save</Button>
           </Stack>

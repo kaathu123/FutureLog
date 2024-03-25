@@ -22,30 +22,34 @@ import axios from "axios";
 
 
 const Course = () => {
-  const[name,setName]=useState('');
-  const[categoryid,setCategoryid]=useState('');
+  const[courseName,setCourseName]=useState("");
+  const[categoryId,setCategoryId]=useState("");
   const [categoryData, setCategoryData] = useState([]);
   const [courseData, setCourseData] = useState ([]);
   const handleSubmit = (event)=>{
     event.preventDefault();
+
     const postData= {
-      name:name, 
+      coursename:courseName, 
+      categoryId
     }
-    axios.post('http://localhost:5000/course',postData)
+
+    axios.post('http://localhost:5000/Course',postData)
     .then((response)=>{
       console.log(response.data);
-      setName('')
-      setCategoryid('')
+      setCourseName('')
+      setCategoryId('')
+      fetchCourse();
 
     })
     .catch((error)=> {
-console.error('error',error);
+    console.error('error',error);
     })
   }
 
 
   const fetchCategory = () => {
-    axios.get('http://localhost:5000/category').then((response)=>{
+    axios.get('http://localhost:5000/Category').then((response)=>{
     console.log(response.data.categorys);
     setCategoryData(response.data.categorys)
     })
@@ -56,7 +60,7 @@ console.error('error',error);
 
 
   const fetchCourse = () => {
-    axios.get('http://localhost:5000/course').then((response) => {
+    axios.get('http://localhost:5000/Course').then((response) => {
       console.log(response.data.courses);
       setCourseData(response.data.courses);
     }).catch((error) => {
@@ -69,6 +73,17 @@ console.error('error',error);
   },[])
 
 
+
+  const handleDelete = (Id) => {
+    axios.delete(`http://localhost:5000/Course/${Id}`)
+    .then((response) => {
+      console.log('Deleted successfully', response);
+      fetchCourse();
+    })
+    . catch((error)=>{
+      console.error('Error fetching district data:', error);
+    })
+  }
   
 
   return (
@@ -107,15 +122,14 @@ console.error('error',error);
                 // value={age}
                 label="category"
                 // onChange={handleChange}
-                onChange={(event)=>setCategoryid(event.target.value)}
-                value={categoryid}
+                onChange={(event)=>setCategoryId(event.target.value)}
+                value={categoryId}
 
               >
 
                 {/* //view list of details */}
                 {categoryData.map((category, key) => ( 
-                  <MenuItem key={key} value={category._id}
-                  >
+                  <MenuItem key={key} value={category._id}>
                   {category.categoryname}
                 </MenuItem>
                 ))}
@@ -126,9 +140,9 @@ console.error('error',error);
               id="standard-basic"
               label="Course Name"
               variant="standard"
-              onChange={(event)=>setName(event.target.value)}
+              onChange={(event)=>setCourseName(event.target.value)}
             />
-            <Button variant="contained">Save</Button>
+            <Button variant="contained" type="submit">Save</Button>
           </Stack>
         </Box>
       </Card>
@@ -136,8 +150,11 @@ console.error('error',error);
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Categary Name</TableCell>
+            <TableCell >Sl No</TableCell>
+              <TableCell align="center">Categary Name</TableCell>
               <TableCell align="right">Course Name</TableCell>
+              <TableCell align="right">Actions</TableCell>
+
             </TableRow>
           </TableHead>
           <TableBody>
@@ -146,10 +163,14 @@ console.error('error',error);
                 key={key}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell component="th" scope="row">
-                  {course.categoryname}
+               < TableCell>{key+1}</TableCell>
+                <TableCell component="th" scope="row" align="center">
+                  {course.categoryId.categoryname}
                 </TableCell>
                 <TableCell align="right">{course.coursename}</TableCell>
+                <TableCell align="right">
+                  <Button variant="outlined" onClick={() =>handleDelete(course._id) }>Delete</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

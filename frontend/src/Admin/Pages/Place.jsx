@@ -16,19 +16,22 @@ const Place = () => {
   const [districtId, setDistrictId] = useState('');
   const [placeName, setPlaceName] = useState('');
   const [districtData, setDistrictData] = useState([]);
+  const [placeData, setPlaceData] = useState([]);
+
 
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = {
       placename: placeName,
-      districtname: districtId,
+      districtId
     }; //usestate and schema name wrapped as object and it assigned to variable data
     axios.post('http://localhost:5000/Place', data)
     .then((response) => {
       console.log(response.data);
       setDistrictId('')
       setPlaceName('')
+      fetchPlace()
     })
   }
 
@@ -42,10 +45,21 @@ const Place = () => {
       console.error('Error fetching district data:', error);
     });
   }
+  
+  const fetchPlace = () => {
+    axios.get(`http://localhost:5000/Place`).then((response) => {
+      console.log(response.data.places);
+      setPlaceData(response.data.places) //state update erkm then kollam
+    })
+    .catch((error) => {
+      console.error('Error fetching places data:', error);
+    });
+  }
 
 
   useEffect(() => {
     fetchDistrict()
+    fetchPlace()
  }, [])
   return (
     <Box  sx={{ display: "flex", justifyContent: "center",alignItems:'center',height:'100vh',flexDirection:'column' }}>
@@ -83,7 +97,7 @@ const Place = () => {
                 onChange={(event)=>setDistrictId(event.target.value)}
                 value={districtId}
               >
-              {/* //view list of districts  */}
+              //view list of districts 
                {districtData.map((district, key) => (
                   <MenuItem key={key} value={district._id}
                >
@@ -100,31 +114,27 @@ const Place = () => {
       </Card>
       <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
-          </TableRow>
-        </TableHead>
-        {/* <TableBody>
-          {rows.map((row) => (
-            <TableRow
-              key={row.name}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
+      <TableHead>
+            <TableRow>
+            <TableCell >Sl No</TableCell>
+              <TableCell align="center">District Name</TableCell>
+              <TableCell align="right">Place Name</TableCell>
             </TableRow>
+          </TableHead>
+        <TableBody>
+          {placeData.map((place , key) => (
+           <TableRow
+                key={key}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+               < TableCell>{key+1}</TableCell>
+                <TableCell component="th" scope="row" align="center">
+                  {place.districtId.districtname}
+                </TableCell>
+                <TableCell align="right">{place.placename}</TableCell>
+              </TableRow>
           ))}
-        </TableBody> */}
+        </TableBody>
       </Table>
     </TableContainer>
     </Box>

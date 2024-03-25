@@ -91,6 +91,7 @@ const Category = mongoose.model('category', categorySchemaStructure)
 //category
 app.post('/Category', async (req, res) => {
     try {
+        console.log(req.body);
         const { categoryname } = req.body
         let category = new Category({
             categoryname
@@ -105,7 +106,7 @@ app.post('/Category', async (req, res) => {
 })
 
 
-app.get('/category', async (req, res) => {
+app.get('/Category', async (req, res) => {
     try {
         const categorys = await Category.find();
         console.log('category is successfully retived', categorys);
@@ -121,6 +122,75 @@ app.get('/category', async (req, res) => {
 
 // ************************************************************************************************************************************************
 
+//Course Schema
+const courseSchemaStructure = new mongoose.Schema({
+    coursename: {
+        type: String,
+        required: true
+    },
+    categoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'category',
+        required: true
+    }
+})
+
+
+const Course = mongoose.model('course', courseSchemaStructure)
+
+
+//Course
+app.post('/Course', async (req, res) => {
+    console.log(req.body);
+    const { coursename, categoryId } = req.body;
+    try {
+        let newCourse = new Course({
+            coursename,
+            categoryId
+        })
+
+        await newCourse.save()
+        res.json({ message: 'user inserted successfully' })
+    }
+    catch (err) {
+        console.error(err.message)
+        res.status(500).send('Server error')
+    }
+});
+
+
+
+
+//popoluate-course
+app.get('/Course', async (req, res) => {
+    try {
+        const courses = await Course.find().populate('categoryId').exec();
+        console.log('successfully inserted', courses);
+        res.json({courses});
+    }
+    catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error');
+
+    }
+})
+
+
+app.delete('/Course/:Id', async(req, res) => {
+    try {
+         const Id = req.params.Id;
+        const deleteCourse =  await Course.findByIdAndDelete(Id);
+        res.json({ message: 'Course deleted successfully', deleteCourse })
+
+
+    } catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error');
+    }
+})
+
+
+// ************************************************************************************************************************************************                   
 
 //District Schema
 const districtSchemaStructure = new mongoose.Schema({
@@ -190,25 +260,13 @@ const Place = mongoose.model('place', placeSchemaStructure)
 
 //place
 app.post('/place', async (req, res) => {
-    const { placename, districtname } = req.body;
+    console.log(req.body);
+    const { placename, districtId } = req.body;
     try {
 
-        if (!districtname) {
-            return res.status(400).json({ message: 'District name is required' });
-        }
-
-        let district = await District.findOne({ districtname });
-
-        if (!district) {
-            district = new District({
-                districtname
-            });
-            await district.save();
-        }
-
         let newPlace = new Place({
-            placename: placename,
-            districtId: district._id
+            placename,
+            districtId
         })
 
         await newPlace.save()
@@ -221,11 +279,11 @@ app.post('/place', async (req, res) => {
 });
 
 
-app.get('/place', async (req, res) => {
+app.get('/Place', async (req, res) => {
     try {
         const places = await Place.find().populate('districtId').exec();
         console.log('Places is successfully retived', places);
-        res.json(places);
+        res.json({places});
 
     } catch (error) {
         console.error('Error retrieving places:', error);
@@ -236,72 +294,6 @@ app.get('/place', async (req, res) => {
 
 
 // ************************************************************************************************************************************************    
-
-
-//Course Schema
-const courseSchemaStructure = new mongoose.Schema({
-    coursename: {
-        type: String,
-        required: true
-    },
-    categoryId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'category',
-        required: true
-    }
-})
-
-
-const Course = mongoose.model('course', courseSchemaStructure)
-
-
-//Course
-app.post('/Course', async (req, res) => {
-    const { coursename, categoryname } = req.body;
-    try {
-
-        let category = await Category.findOne({ categoryname });
-
-        if (!category) {
-            category = new Category({
-                categoryname
-            });
-            await category.save();
-        }
-
-        let newCourse = new Course({
-            coursename: coursename,
-            categoryId: category._id
-        })
-
-        await newCourse.save()
-        res.json({ message: 'user inserted successfully' })
-    }
-    catch (err) {
-        console.error(err.message)
-        res.status(500).send('Server error')
-    }
-});
-
-
-
-
-//popoluate-course
-app.get('/course', async (req, res) => {
-    try {
-        const courses = await Course.find().populate('categoryId').exec();
-        console.log('successfully inserted', courses);
-        res.json({courses});
-    }
-    catch (error) {
-        console.error('error', error);
-        res.status(500).send('internal server error');
-
-    }
-})
-
-
-// ************************************************************************************************************************************************                   
 
 
 //college Schema
@@ -971,6 +963,43 @@ catch (error) {
 }
  })
 
+
+//  **************************************************************************************************************************************************************8
+
+//login Schema
+const loginSchemaStructure = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    }
+})
+
+
+const Login = mongoose.model('login', loginSchemaStructure)
+
+
+//login
+app.post('/Login', async (req, res) => {
+    const { name, password } = req.body;
+    try {
+        console.log(req.body);
+
+        let newlogin = new Login({
+            name:name,
+            password:password,
+        })
+        await newlogin.save()
+        res.json({ messege: 'inserted successfully' })
+    }
+    catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error')
+    }
+});
 
 
 
