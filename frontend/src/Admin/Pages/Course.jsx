@@ -22,18 +22,19 @@ import axios from "axios";
 
 
 const Course = () => {
-  const[courseName,setCourseName]=useState("");
+  const[coursename,setCourseName]=useState("");
   const[categoryId,setCategoryId]=useState("");
   const [categoryData, setCategoryData] = useState([]);
   const [courseData, setCourseData] = useState ([]);
+  const [singleCourse,setSingleCourse] = useState(null);
   const handleSubmit = (event)=>{
     event.preventDefault();
 
     const postData= {
-      coursename:courseName, 
+      coursename, 
       categoryId
     }
-
+if(singleCourse == null){
     axios.post('http://localhost:5000/Course',postData)
     .then((response)=>{
       console.log(response.data);
@@ -46,6 +47,20 @@ const Course = () => {
     console.error('error',error);
     })
   }
+
+else{
+  axios.put(`http://localhost:5000/Course/${singleCourse}`, postData)
+  .then((response) => {
+    console.log("Updated successfully", response);
+    setCourseName("");
+    fetchCourse();
+    setSingleCourse(null)
+  })
+  .catch((error) => {
+    console.error("Error updating course data:", error);
+  });
+}
+}
 
 
   const fetchCategory = () => {
@@ -66,6 +81,18 @@ const Course = () => {
     }).catch((error) => {
       console.error('Error fetching course data:', error);
     });
+  }
+  const handleFetchSingleCourse = (id) => {
+    axios.get(`http://localhost:5000/Course/${id}`)
+    .then((response)=>{
+    const data = response.data.courses
+    setSingleCourse(data._id);
+      setCourseName(data.coursename)
+      })
+     . catch((error)=>{
+        console.error('Error fetching course data:', error);
+      })
+    
   }
   useEffect(()=>{
     fetchCategory()
@@ -170,6 +197,9 @@ const Course = () => {
                 <TableCell align="right">{course.coursename}</TableCell>
                 <TableCell align="right">
                   <Button variant="outlined" onClick={() =>handleDelete(course._id) }>Delete</Button>
+                </TableCell>
+                <TableCell align="right">
+                  <Button variant="outlined" onClick={() =>handleFetchSingleCourse(course._id) }>Edit</Button>
                 </TableCell>
               </TableRow>
             ))}

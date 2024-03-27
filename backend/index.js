@@ -110,7 +110,7 @@ app.get('/Category', async (req, res) => {
     try {
         const categorys = await Category.find();
         console.log('category is successfully retived', categorys);
-        res.json({categorys});
+        res.json({ categorys });
 
     } catch (error) {
         console.error('Error retrieving categoys:', error);
@@ -119,6 +119,52 @@ app.get('/Category', async (req, res) => {
 
 })
 
+
+
+app.get('/Category/:Id', async (req, res) => {
+    try {
+        const Id = req.params.Id
+        const categorys = await Category.findOne({ _id: Id });
+        console.log('category is successfully retived', categorys);
+        res.json({ categorys });
+
+    } catch (error) {
+        console.error('Error retrieving categoys:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+})
+
+app.delete('/Category/:Id', async (req, res) => {
+    try {
+        const Id = req.params.Id;
+        const deleteCategory = await Category.findByIdAndDelete(Id);
+        res.json({ message: 'Category deleted successfully', deleteCategory })
+
+
+    } catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error');
+    }
+})
+
+
+app.put('/Category/:Id', async (req, res) => {
+    const Id = req.params.Id
+    try {
+        const { categoryname } = req.body
+        const updateCateogry = await Category.findByIdAndUpdate(Id,
+            { categoryname },
+            { new: true }
+        );
+        res.json({ message: 'Successfully Updated', updateCateogry })
+
+
+    } catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error');
+    }
+})
 
 // ************************************************************************************************************************************************
 
@@ -166,7 +212,7 @@ app.get('/Course', async (req, res) => {
     try {
         const courses = await Course.find().populate('categoryId').exec();
         console.log('successfully inserted', courses);
-        res.json({courses});
+        res.json({ courses });
     }
     catch (error) {
         console.error('error', error);
@@ -176,11 +222,27 @@ app.get('/Course', async (req, res) => {
 })
 
 
-app.delete('/Course/:Id', async(req, res) => {
+app.delete('/Course/:Id', async (req, res) => {
     try {
-         const Id = req.params.Id;
-        const deleteCourse =  await Course.findByIdAndDelete(Id);
+        const Id = req.params.Id;
+        const deleteCourse = await Course.findByIdAndDelete(Id);
         res.json({ message: 'Course deleted successfully', deleteCourse })
+
+
+    } catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error');
+    }
+})
+app.put('/Course/:Id', async (req, res) => {
+    const Id = req.params.Id
+    try {
+        const { coursename } = req.body
+        const updateCourse = await Course.findByIdAndUpdate(Id,
+            { coursename },
+            { new: true }
+        );
+        res.json({ message: 'Successfully Updated', updateCourse })
 
 
     } catch (error) {
@@ -227,11 +289,45 @@ app.get('/District', async (req, res) => {
     try {
         const districts = await District.find();
         console.log('Places is successfully retived', districts);
-        res.json({districts});
+        res.json({ districts });
 
     } catch (error) {
         console.error('Error retrieving places:', error);
         res.status(500).send('Internal Server Error');
+    }
+
+})
+
+app.delete('/District/:Id', async (req, res) => {
+    try {
+        const Id = req.params.Id;
+        const deleteDistrict = await District.findByIdAndDelete(Id);
+        res.json({ message: 'district deleted successfully', deleteDistrict })
+
+
+    } catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error');
+    }
+})
+
+app.put('/District/:Id', async (req, res) => {
+    const Id = req.params.Id
+    try {
+        const { districtname } = req.body
+        const updateDistrict = await District.findByIdAndUpdate(Id,
+            {
+                districtname
+            },
+            {
+                new: true
+            });
+        res.json({ message: 'Successfully Updated', updateDistrict })
+
+
+    } catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error');
     }
 
 })
@@ -279,11 +375,13 @@ app.post('/place', async (req, res) => {
 });
 
 
-app.get('/Place', async (req, res) => {
+
+app.get('/Place/:Id', async (req, res) => {
     try {
-        const places = await Place.find().populate('districtId').exec();
+        const Id = req.params.Id
+        const places = await Place.find({districtId:Id})
         console.log('Places is successfully retived', places);
-        res.json({places});
+        res.json({ places });
 
     } catch (error) {
         console.error('Error retrieving places:', error);
@@ -293,43 +391,74 @@ app.get('/Place', async (req, res) => {
 })
 
 
+
+app.get('/Place', async (req, res) => {
+    try {
+        const places = await Place.find().populate('districtId').exec();
+        console.log('Places is successfully retived', places);
+        res.json({ places });
+
+    } catch (error) {
+        console.error('Error retrieving places:', error);
+        res.status(500).send('Internal Server Error');
+    }
+
+})
+
+app.delete('/Place/:Id', async (req, res) => {
+    try {
+        const Id = req.params.Id;
+        const deletePlace = await Place.findByIdAndDelete(Id);
+        res.json({ message: 'place deleted successfully', deletePlace })
+
+
+    } catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error');
+    }
+})
+
 // ************************************************************************************************************************************************    
 
 
 //college Schema
 const collegeSchemaStructure = new mongoose.Schema({
-    collegename: {
+    name: {
         type: String,
         required: true,
-        unique: true
+        // unique: true
     },
     email: {
         type: String,
         required: true,
-        unique: true
+    },
+    number: {
+        type: Number,
+        required: true,
     },
     password: {
         type: String,
         required: true,
-        minlength: 6
     },
     address: {
         type: String,
         required: true,
-        unique: true
     },
     collegestatus: {
-        type: Number,
-        required: true
+        type: Boolean,
+        default: false,
+
     },
     proof: {
         type: String,
         required: true,
-        unique: true
+    },
+    photo: {
+        type: String,
     },
     placeId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'place',
+        ref: 'Place',
         required: true
     }
 })
@@ -339,26 +468,17 @@ const College = mongoose.model('college', collegeSchemaStructure)
 
 //college
 app.post('/college', async (req, res) => {
-    const { collegename, email, password, collegestatus, address, placename, proof } = req.body;
     try {
-
-        let place = await Place.findOne({ placename });
-
-        if (!place) {
-            place = new Place({
-                placename
-            });
-            await place.save();
-        }
+        const { name, email, password, address, photo, number, proof, placeId } = req.body;
 
         let newCollege = new College({
-            collegename: collegename,
-            email: email,
-            password: password,
-            address: address,
-            collegestatus: collegestatus,
-            proof: proof,
-            placeId: place._id
+            name,
+            email,
+            password,
+            address,
+            proof,
+            number,
+            placeId
         })
 
         await newCollege.save()
@@ -373,15 +493,9 @@ app.post('/college', async (req, res) => {
 //populate college
 app.get('/college', async (req, res) => {
     try {
-        const colleges = await College.find().populate({
-            path: 'placeId',
-            populate: {
-                path: 'districtId',
-                model: 'district'
-            }
-        }).exec();
+        const colleges = await College.find().populate("placeId").exec();
         console.log('sucessfully retrived', colleges);
-        res.json(colleges);
+        res.json({ colleges });
 
     } catch (error) {
         console.error('error', error);
@@ -950,18 +1064,18 @@ app.post('./request', async (req, res) => {
 
 
 //populate request
- app.get('./request',async(req,res)=>{
-    try{
-const requests=await Request.find().populate('packageId','userId')
-console.log('retrived successfully',requests)
-res.json(requests);
-    
-}
-catch (error) {
-    console.error('error', error);
-    res.status(500).send('internal server error')
-}
- })
+app.get('./request', async (req, res) => {
+    try {
+        const requests = await Request.find().populate('packageId', 'userId')
+        console.log('retrived successfully', requests)
+        res.json(requests);
+
+    }
+    catch (error) {
+        console.error('error', error);
+        res.status(500).send('internal server error')
+    }
+})
 
 
 //  **************************************************************************************************************************************************************8
@@ -989,8 +1103,8 @@ app.post('/Login', async (req, res) => {
         console.log(req.body);
 
         let newlogin = new Login({
-            name:name,
-            password:password,
+            name: name,
+            password: password,
         })
         await newlogin.save()
         res.json({ messege: 'inserted successfully' })

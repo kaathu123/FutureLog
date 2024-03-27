@@ -1,20 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Card, FormControl, InputLabel, MenuItem, Paper, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Typography } from "@mui/material";
 import axios from "axios";
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
-  const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-  ];
 
 const Place = () => {
   const [districtId, setDistrictId] = useState('');
-  const [placeName, setPlaceName] = useState('');
+  const [placename, setPlaceName] = useState('');
   const [districtData, setDistrictData] = useState([]);
   const [placeData, setPlaceData] = useState([]);
 
@@ -23,7 +13,7 @@ const Place = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = {
-      placename: placeName,
+      placename,
       districtId
     }; //usestate and schema name wrapped as object and it assigned to variable data
     axios.post('http://localhost:5000/Place', data)
@@ -34,10 +24,21 @@ const Place = () => {
       fetchPlace()
     })
   }
+  const handleDelete = (Id) => {
+    axios.delete(`http://localhost:5000/Course/${Id}`)
+    .then((response) => {
+      console.log('Deleted successfully', response);
+      fetchPlace();
+    })
+    . catch((error)=>{
+      console.error('Error fetching district data:', error);
+    })
+  }
+  
 
 
   const fetchDistrict = () => {
-    axios.get(`http://localhost:5000/District/`).then((response) => {
+    axios.get(`http://localhost:5000/District`).then((response) => {
       console.log(response.data.districts);
       setDistrictData(response.data.districts) //state update erkm then kollam
     })
@@ -97,7 +98,7 @@ const Place = () => {
                 onChange={(event)=>setDistrictId(event.target.value)}
                 value={districtId}
               >
-              //view list of districts 
+            
                {districtData.map((district, key) => (
                   <MenuItem key={key} value={district._id}
                >
@@ -107,7 +108,7 @@ const Place = () => {
 
               </Select>
             </FormControl>
-            <TextField id="standard-basic" label="Place" variant="standard"   onChange={(event) => setPlaceName(event.target.value)} value={placeName}/>
+            <TextField id="standard-basic" label="Place" variant="standard"   onChange={(event) => setPlaceName(event.target.value)} />
             <Button variant="contained" type="submit">Save</Button>
           </Stack>
         </Box>
@@ -132,6 +133,9 @@ const Place = () => {
                   {place.districtId.districtname}
                 </TableCell>
                 <TableCell align="right">{place.placename}</TableCell>
+                <TableCell align="right">
+                  <Button variant="outlined" onClick={() =>handleDelete(place._id) }>Delete</Button>
+                </TableCell>
               </TableRow>
           ))}
         </TableBody>

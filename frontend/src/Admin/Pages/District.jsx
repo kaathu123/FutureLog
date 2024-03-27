@@ -1,24 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Card, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { TextField, Button } from "@mui/material";
 import axios from 'axios';
 
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
-  }
-  
-  const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-  ];
-  
+
 
 const District = () => {
   const[district,setDistrict] = useState('');
+  const [districtData,setDistrictData] = useState([]);
+  const [singleDistrict,setSingleDistrict] =useState(null);
 
   const handleSubmit = (event) => {
     event.preventDefault()
@@ -26,16 +17,68 @@ const District = () => {
     const postData = {
       districtname: district, 
     }
-    
+    if(singleDistrict == null){
     axios.post('http://localhost:5000/District/', postData)
     .then((response) => {
       console.log('POST request successful:', response.data);
+      setDistrict();
+      fetchDistrict();
     })
     .catch((error) => {
       console.error('Error sending POST request:', error);
     });
   }
+else{
+  axios.put(`http://localhost:5000/District/${singleDistrict}`, postData)
+  .then((response) => {
+    console.log("Updated successfully", response);
+    setDistrict("");
+    fetchDistrict();
+    setSingleDistrict(null)
+  })
+  .catch((error) => {
+    console.error("Error updating category data:", error);
+  });
+}
 
+}
+
+  const fetchDistrict = () => {
+    axios.get('http://localhost:5000/District').then((response)=>{
+    console.log(response.data.districts);
+    setDistrictData(response.data.districts)
+    })
+   . catch((error)=>{
+      console.error('Error fetching district data:', error);
+    })
+}
+  const handleFetchSingleDistrict = (id) => {
+    axios.get(`http://localhost:5000/District/${id}`)
+    .then((response)=>{
+    const data = response.data.districts
+    setSingleDistrict(data._id);
+      setDistrict(data.districtname)
+      })
+     . catch((error)=>{
+        console.error('Error fetching district data:', error);
+      })
+    
+  }
+  useEffect(()=>{
+    fetchDistrict()
+
+  },[])
+
+  const handleDelete = (Id) => {
+    axios.delete(`http://localhost:5000/District/${Id}`)
+    .then((response) => {
+      console.log('Deleted successfully', response);
+      fetchDistrict();
+    })
+    . catch((error)=>{
+      console.error('Error fetching district data:', error);
+    })
+  }
   return (
     <Box sx={{ display: "flex", justifyContent: "center",alignItems:'center',height:'100vh',flexDirection:'column' } }>
       <Card sx={{width:400,height:250,display:'flex',justifyContent:'center',px:5}} component={'form'} onSubmit={handleSubmit}>
@@ -51,35 +94,37 @@ const District = () => {
         </Stack>
         </Box>
       </Card>
-      <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Dessert (100g serving)</TableCell>
-            <TableCell align="right">Calories</TableCell>
-            <TableCell align="right">Fat&nbsp;(g)</TableCell>
-            <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-            <TableCell align="right">Protein&nbsp;(g)</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <TableRow
-              key={row.name}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="row">
-                {row.name}
-              </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
-              <TableCell align="right">{row.protein}</TableCell>
+      <TableContainer component={Paper} sx={{ m:4 }}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+            <TableCell >Sl No</TableCell>
+              <TableCell align="center">District Name</TableCell>
+              <TableCell align="right">Actions</TableCell>
+
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {districtData.map((district, key) => (
+              <TableRow
+                key={key}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+               < TableCell>{key+1}</TableCell>
+                <TableCell component="th" scope="row" align="center">
+                  {district.districtname}
+                </TableCell>
+                <TableCell align="right">
+                  <Button variant="outlined" onClick={() =>handleDelete(district._id) }>Delete</Button>
+                </TableCell>
+                <TableCell align="right">
+                  <Button variant="outlined" onClick={() => handleFetchSingleDistrict(district._id) }>Edit</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </Box>
   );
 };

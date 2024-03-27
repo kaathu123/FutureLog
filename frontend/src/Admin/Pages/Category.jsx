@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,36 +15,86 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
 const Category = () => {
   const[categoryName, setCategoryName] = useState('');
+  const [categoryData,setCategoryData]=useState([]);
+  const [singleCategory,setSingleCategory]=useState(null);
 const handleSubmit = (event)=>{
-  event.preventDefault()
+  event.preventDefault();
 
   const postData={
     categoryname:categoryName,
   }
-  axios.post('http://localhost:5000/Category',postData)
-  .then((response)=>{
-    console.log('post request successful:',response.data);
-    setCategoryName(); 
+
+  if(singleCategory === null){
+    axios.post('http://localhost:5000/Category',postData)
+    .then((response)=>{
+      console.log('post request successful:',response.data);
+      setCategoryName(''); 
+      fetchCategory();
+    })
+    .catch((error)=>{
+      console.error('error sending POST request:',error);
+    });
+  }
+  else{
+    axios.put(`http://localhost:5000/Category/${singleCategory}`, postData)
+  .then((response) => {
+    console.log("Updated successfully", response);
+    setCategoryName("");
+    fetchCategory();
+    setSingleCategory(null)
   })
-  .catch((error)=>{
-    console.error('error sending POST request:',error);
+  .catch((error) => {
+    console.error("Error updating category data:", error);
   });
+  }
 }
+
+const fetchCategory = () => {
+  axios.get('http://localhost:5000/Category').then((response)=>{
+  console.log(response.data.categorys);
+  setCategoryData(response.data.categorys)
+  })
+ . catch((error)=>{
+    console.error('Error fetching Category data:', error);
+  })
+}
+
+const handleFetchSingleCat = (id) => {
+  axios.get(`http://localhost:5000/Category/${id}`).then((response)=>{
+    const data = response.data.categorys
+    setSingleCategory(data._id)
+    setCategoryName(data.categoryname)
+    })
+   . catch((error)=>{
+      console.error('Error fetching Category data:', error);
+    })
+}
+
+
+useEffect(()=>{
+  fetchCategory()
+},[])
+
+
+
+const handleDelete = (Id) => {
+  axios.delete(`http://localhost:5000/Category/${Id}`)
+  .then((response) => {
+    console.log('Deleted successfully', response);
+    fetchCategory();
+  })
+  . catch((error)=>{
+    console.error('Error fetching category data:', error);
+  })
+} 
+
+
+
+
+
+
 
 
   return (
@@ -76,35 +126,39 @@ const handleSubmit = (event)=>{
         </Typography>
           <TextField id="standard-basic" label="Stream" variant="standard"             
             onChange={(event)=>setCategoryName(event.target.value)}
+            value={categoryName}
           />
           <Button variant="contained" type="submit">Save</Button>
           </Stack>
         </Box>
       </Card>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} sx={{ m:4 }}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell align="right">Calories</TableCell>
-              <TableCell align="right">Fat&nbsp;(g)</TableCell>
-              <TableCell align="right">Carbs&nbsp;(g)</TableCell>
-              <TableCell align="right">Protein&nbsp;(g)</TableCell>
+            <TableCell >Sl No</TableCell>
+              <TableCell align="center">Categary Name</TableCell>
+              <TableCell align="right">Actions</TableCell>
+
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
+            {categoryData.map((category, key) => (
               <TableRow
-                key={row.name}
+                key={key}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell component="th" scope="row">
-                  {row.name}
+               < TableCell>{key+1}</TableCell>
+                <TableCell component="th" scope="row" align="center">
+                  {category.categoryname}
                 </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
-                <TableCell align="right">{row.carbs}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
+                <TableCell align="right">
+                  <Button variant="outlined" onClick={() =>handleDelete(category._id) }>Delete</Button>
+                </TableCell>
+                <TableCell align="right">
+                  <Button variant="outlined" onClick={() =>handleFetchSingleCat(category._id) }>Edit</Button>
+                </TableCell>
+                
               </TableRow>
             ))}
           </TableBody>
@@ -112,5 +166,6 @@ const handleSubmit = (event)=>{
       </TableContainer>
     </Box>
   );
+            
 };
 export default Category;

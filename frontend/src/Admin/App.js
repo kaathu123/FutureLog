@@ -10,6 +10,9 @@ import District from './Pages/District'
 import Place from './Pages/Place'
 import Myprofile from './Pages/Myprofile'
 import Adminlogin from './Pages/adminlogin'
+import CollegeApproval from './Pages/CollegeApproval'
+import Sidebar from "./components/sidebar/Sidebar";
+import Navbar from "./components/navbar/Navbar";
 
 const styles = {
   margin: 2,
@@ -30,6 +33,10 @@ function App() {
 
   return (
     <div >
+        <div className="homeMain">
+      <Sidebar />
+      <div className="homeContainerAdmin">
+        <Navbar />
           <Card sx={styles}>
 
           <Routes>
@@ -40,11 +47,15 @@ function App() {
             <Route path="/place" element={<Place/>}/>
             <Route path="/Myprofile" element={<Myprofile/>}/>
             <Route path="/adminlogin" element={<Adminlogin/>}/>
+            <Route path="/CollegeApproval" element={<CollegeApproval/>}/>
       
 
 
           </Routes>
           </Card>
+          
+      </div>
+    </div>
     </div>
   );
 }
