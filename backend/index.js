@@ -3,9 +3,25 @@ const mongoose = require('mongoose');
 const app = express();
 const port = 5000;
 const cors = require('cors')
+const multer = require("multer");
+
+const PATH = "./public/images";
+const upload = multer({
+    storage: multer.diskStorage({
+      destination: PATH,
+      filename: function (req, file, cb) {
+        let origialname = file.originalname;
+        let ext = origialname.split(".").pop();
+        let filename = origialname.split(".").slice(0, -1).join(".");
+        cb(null, filename + "." + ext);
+      },
+    }),
+  });
+
 
 const db = 'mongodb+srv://kmern12345:kmern12345@futurelog.7qgiz23.mongodb.net/futurelog';
 
+app.use(express.static("./public")); 
 app.use(express.json());
 app.use(cors())
 
@@ -426,7 +442,7 @@ const collegeSchemaStructure = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        // unique: true
+        unique: true
     },
     email: {
         type: String,
@@ -467,16 +483,21 @@ const College = mongoose.model('college', collegeSchemaStructure)
 
 
 //college
-app.post('/college', async (req, res) => {
+app.post('/college', upload.fields([
+    { name: "proof", maxCount: 1 },
+  ]), 
+  async (req, res) => {
+    var fileValue = JSON.parse(JSON.stringify(req.files));
+    var proofimgsrc = `http://127.0.0.1:${port}/images/${fileValue.user_proof[0].filename}`;
     try {
-        const { name, email, password, address, photo, number, proof, placeId } = req.body;
+        const { name, email, password, address, number,  placeId } = req.body;
 
         let newCollege = new College({
             name,
             email,
             password,
             address,
-            proof,
+            proof:proofimgsrc,
             number,
             placeId
         })

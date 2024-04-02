@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Card, Stack, TextField, Typography,Select,MenuItem, InputLabel, FormControl } from "@mui/material";
-// import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-// import styled from "@emotion/styled";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import styled from "@emotion/styled";
 import axios from "axios";
-// const VisuallyHiddenInput = styled("input")({
-//   clip: "rect(0 0 0 0)",
-//   clipPath: "inset(50%)",
-//   height: 1,
-//   overflow: "hidden",
-//   position: "absolute",
-//   bottom: 0,
-//   left: 0,
-//   whiteSpace: "nowrap",
-//   width: 1,
-// });
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 
 const College = () => {
   const[name,setName]=useState('');
@@ -54,20 +54,37 @@ const College = () => {
  }, [])
 
 
+ const handleFileSelect = (event) => {
+  const file = event.target.files[0];
+  setProof(file);
+};
+
+
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = {
-      name,
-      email,
-      password,
-      address,
-      number,
-      proof,
-      placeId,
-      districtId
-    }; //usestate and schema name wrapped as object and it assigned to variable data
+    // const data = {
+    //   name,
+    //   email,
+    //   password,
+    //   address,
+    //   number,
+    //   proof,
+    //   placeId,
+    //   districtId
+    // }; //usestate and schema name wrapped as object and it assigned to variable data
+
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('address', address);
+    formData.append('number', number);
+    formData.append('proof', proof);
+    formData.append('placeId', placeId);
+    formData.append('districtId', districtId);
+
     
-    axios.post('http://localhost:5000/college', data)
+    axios.post('http://localhost:5000/college', formData)
     .then((response) => {
       console.log(response.data);
       setName("")
@@ -186,12 +203,20 @@ const College = () => {
               </Select>
               </FormControl>
              
-              <TextField
-              id="outlined-basic"
-              label="proof"
-              variant="outlined"
-              onChange={(event)=>setProof(event.target.value)}
-            />
+              <Button
+                className="Proof"
+                component="label"
+                role={undefined}
+                variant="contained"
+                tabIndex={-1}
+                startIcon={<CloudUploadIcon />}
+              >
+                Upload Proof
+                <VisuallyHiddenInput
+                  type="file"
+                  onChange={handleFileSelect}
+                />
+              </Button>
             <Button variant="contained" type="submit">Save</Button>
 
           </Stack>
