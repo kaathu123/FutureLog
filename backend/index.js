@@ -379,7 +379,7 @@ app.post('/place', async (req, res) => {
 app.get('/Place/:Id', async (req, res) => {
     try {
         const Id = req.params.Id
-        const places = await Place.find({districtId:Id})
+        const places = await Place.find({ districtId: Id })
         console.log('Places is successfully retived', places);
         res.json({ places });
 
@@ -511,108 +511,95 @@ const userSchemaStructure = new mongoose.Schema({
     username: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
     },
-    useremail: {
+    email: {
         type: String,
         required: true,
-        unique: true
     },
-    userpassword: {
+    password: {
         type: String,
         required: true,
-        minlength: 6
     },
     useraddress: {
         type: String,
-        required: true
-
+        required: true,
     },
-    placeId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'place',
-        required: true
+    userstatus: {
+        type: Boolean,
+        default: false,
     },
-    ustatus: {
-        type: Number,
-        required: true
-
-    },
-    phone: {
+    userphone: {
         type: Number,
         required: true,
-        minlength: 10,
-        unique: true
-
     },
     userpincode: {
         type: Number,
         required: true,
-        minlength: 6
-
     },
     userphoto: {
         type: String,
-        required: true
-
-    }
-
-
-})
-
-
-const User = mongoose.model('user', userSchemaStructure)
-
-
-
-//user
-app.post('/user', async (req, res) => {
-    const { username, useremail, userpassword, useraddress, ustatus, userphoto, userpincode, phone, placename } = req.body;
-    try {
-
-        let place = await Place.findOne({ placename });
-
-        if (!place) {
-            place = new Place({
-                placename
-            });
-            await place.save();
-        }
-
-        let newUser = new User({
-            username: username,
-            useremail: useremail,
-            userpassword: userpassword,
-            useraddress: useraddress,
-            ustatus: ustatus,
-            userphoto: userphoto,
-            userpincode: userpincode,
-            phone: phone,
-            placeId: place._id
-        })
-
-        await newUser.save()
-        res.json({ message: 'user inserted successfully' })
-    }
-    catch (err) {
-        console.error(err.message)
-        res.status(500).send('Server error')
-    }
+        required: true,
+    },
+    placeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "place",
+        required: true,
+    },
 });
 
-//user Populate
-app.get('/user', async (req, res) => {
-    try {
-        const users = await User.find().populate('placeId').exec();
-        console.log('successfully retrived', users);
-        res.json(users);
-    }
-    catch (error) {
-        console.error('error', error);
-        res.status(500).send('internal server error');
-    }
-})
+const User = mongoose.model("user", userSchemaStructure);
 
+//user
+app.post(
+    "/User", async (req, res) => {
+        console.log(req.body);
+        const {
+            username,
+            email,
+            password,
+            useraddress,
+            userphone,
+            userpincode,
+            userphoto,
+            placeId,
+        } = req.body;
+        try {
+            const existingUser = await User.findOne({ username });
+            if (existingUser) {
+                return res.status(400).json({ message: "Username already exists" });
+            }
+            const newUser = new User({
+                username,
+                email,
+                password,
+                useraddress,
+                userphone,
+                userpincode,
+                userphoto,
+                placeId,
+            });
+
+            await newUser.save();
+            res.json({ message: "User inserted successfully" });
+        } catch (error) {
+            console.error(error.message);
+            res.status(500).send("Server error");
+        }
+    }
+);
+
+//user Populate
+app.get("/User", async (req, res) => {
+    try {
+        const users = await User.find().populate("placeId").exec();
+        console.log("Places is successfully retived", users);
+        res.json({ users });
+    } catch (error) {
+        console.error("Error retrieving places:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 
 
 // *************************************************************************************************************************************************    
@@ -901,17 +888,16 @@ app.get('/coursebooking', async (req, res) => {
 const agencySchemaStructure = new mongoose.Schema({
     agencyname: {
         type: String,
-        required: true
+        required: true,
+        unique: true,
     },
     email: {
         type: String,
         required: true,
-        unique: true
     },
     password: {
         type: String,
         required: true,
-        minlength: 6
     },
     address: {
         type: String,
@@ -919,41 +905,54 @@ const agencySchemaStructure = new mongoose.Schema({
     },
     photo: {
         type: String,
-        required: true
+        required: true,
     },
     proof: {
         type: String,
-        required: true
-    }
+        required: true,
+    },
+    placeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "place",
+        required: true,
+    },
+});
 
-})
-
-const Agency = mongoose.model('agency', agencySchemaStructure)
-
+const Agency = mongoose.model("agency", agencySchemaStructure);
 
 //agency
-app.post('./agency', async (req, res) => {
-    const { agencyname, email, password, address, photo, proof } = req.body;
+app.post("/Agency", async (req, res) => {
+    const { agencyname, email, password, address, photo, proof, placeId } =
+        req.body;
     try {
         let newagency = new Agency({
-            agencyname: agencyname,
-            email: email,
-            password: password,
-            address: address,
-            photo: photo,
-            proof: proof
-
-        })
-        await newagency.save()
-        res.json({ messege: 'insert successfully' })
-
+            agencyname,
+            email,
+            password,
+            address,
+            photo,
+            proof,
+            placeId,
+        });
+        await newagency.save();
+        res.json({ messege: "Agency Inserted Successfully" });
+    } catch (error) {
+        console.error(error.messege);
+        res.status(500).send("Server error");
     }
-    catch (err) {
-        console.error(err.messege)
-        res.status(500).send('Server error')
-    }
-})
+});
 
+//Agency Populate
+app.get("/Agency", async (req, res) => {
+    try {
+        const agency = await Agency.find().populate("placeId").exec();
+        console.log("Places is successfully retived", agency);
+        res.json({ agency });
+    } catch (error) {
+        console.error("Error retrieving places:", error);
+        res.status(500).send("Internal Server Error");
+    }
+});
 // ********************************************************************************************************************************************
 
 //package
@@ -1080,41 +1079,53 @@ app.get('./request', async (req, res) => {
 
 //  **************************************************************************************************************************************************************8
 
-//login Schema
-const loginSchemaStructure = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true
-    },
-    password: {
-        type: String,
-        required: true
-    }
-})
 
 
-const Login = mongoose.model('login', loginSchemaStructure)
-
-
-//login
+// //login
 app.post('/Login', async (req, res) => {
-    const { name, password } = req.body;
+    const { email, password } = req.body;
     try {
-        console.log(req.body);
+        const user = await User.findOne({ email, password })
+        const agency = await Agency.findOne({ email, password })
+        const admin = await Admin.findOne({ email, password })
+        const college = await College.findOne({ email, password })
 
-        let newlogin = new Login({
-            name: name,
-            password: password,
-        })
-        await newlogin.save()
-        res.json({ messege: 'inserted successfully' })
+        if (!user && !agency && !admin && !college) {
+            return res.status(400).json({ error: 'Invalid Credential' })
+        }
+        if (user) {
+            res.send({
+                id: user._id,
+                login: 'user',
+            })
+        } else if (agency) {
+            res.send({
+                id: agency._id,
+                login: 'agency',
+            })
+        } else if (admin) {
+            res.send({
+                id: admin._id,
+                login: 'admin',
+            })
+
+        } else if (college) {
+            res.send({
+                id: college._id,
+                login: 'college',
+            })
+
+        }
+        else {
+            console.log('hey ')
+        }
+
     }
     catch (error) {
         console.error('error', error);
         res.status(500).send('internal server error')
     }
 });
-
 
 
 

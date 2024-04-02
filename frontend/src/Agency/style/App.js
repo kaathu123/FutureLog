@@ -1,13 +1,13 @@
-import Home from "../../Admin/Pages/home/Home";
+import Home from "../Pages/home/Home";
 import {  Routes, Route } from "react-router-dom";
-import "../../Admin/style/dark.scss";
+import "../style/dark.scss";
 import { useContext } from "react";
-import { DarkModeContext } from "../../Admin/context/darkModeContext";
+import { DarkModeContext } from "../context/darkModeContext";
 
 
 import Requestpage from '../Requestpage';
 import Packageschema from '../Packageschema';
-import Agency from '../Agency';
+
 
 import { Card } from "@mui/material";
 
@@ -35,7 +35,7 @@ function App() {
 
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/agency" element={<Agency/>}/>
+          
             <Route path="/packageschema" element={<Packageschema/>}/>
             <Route path="/requestpage" element={<Requestpage/>}/>
       

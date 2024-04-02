@@ -9,14 +9,17 @@ import Agency from './Agency/style/App';
 
 
 
+
 const App = () => {
   return (
   
         <Routes>
-          <Route path='/Admin/*' element={<Admin />}></Route>
-          <Route path='/Guest/*' element={<Guest />}></Route>
-          <Route path='/User/*' element={<User />}></Route>
-          <Route path='/Agency/*' element={<Agency />}></Route>
+          <Route path='/Admin/*' element={<Admin />}/>
+          <Route path='/Guest/*' element={<Guest />}/>
+          <Route path='/User/*' element={<User />}/>
+          <Route path='/Agency/*' element={<Agency />}/>
+          
+
 
 
         </Routes>

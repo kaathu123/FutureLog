@@ -25,9 +25,10 @@ import {
    
  
     const [collegeData, setCollegeData] = useState([]);
-    const [PlaceData,setPlaceData] = useState([]);
-    const [districtData,setDistrictData] = useState([]);
-   
+    const handleSubmit = (event)=>{
+      event.preventDefault();
+
+    }
   
     const fetchCollege = () => {
       axios.get('http://localhost:5000/college').then((response)=>{
@@ -39,39 +40,8 @@ import {
       })
     }
   
-    const fetchPlace = () => {
-      axios.get('http://localhost:5000/Place').then((response) => {
-        console.log(response.data.places);
-        setPlaceData(response.data.places);
-      }).catch((error) => {
-        console.error('Error fetching place data:', error);
-      });
-    }
-    const fetchDistrict = () => {
-      axios.get('http://localhost:5000/District').then((response) => {
-        console.log(response.data.districts);
-        setDistrictData(response.data.districts);
-      }).catch((error) => {
-        console.error('Error fetching districts data:', error);
-      });
-    }
-
-    // const handleFetchSingleCourse = (id) => {
-    //   axios.get(`http://localhost:5000/Course/${id}`)
-    //   .then((response)=>{
-    //   const data = response.data.courses
-    //   setSingleCourse(data._id);
-    //     setCourseName(data.coursename)
-    //     })
-    //    . catch((error)=>{
-    //       console.error('Error fetching course data:', error);
-    //     })
-      
-    // }
     useEffect(()=>{
       fetchCollege()
-      fetchDistrict()
-      fetchPlace()
     },[])
   
   
@@ -99,16 +69,17 @@ import {
         }}
       >
         <Card
-          // sx={{
-          //   display: "flex",
-          //   height: 300,
-          //   width: 400,
-          //   justifyContent: "center",
-          //   alignItems: "center",
-          //   px: 5,
+          sx={{
+            display: "flex",
+            height: 300,
+            width: 400,
+            justifyContent: "center",
+            alignItems: "center",
+            px: 5,
             
-          // }}
-       
+          }}
+          component={'form'}
+          onSubmit={handleSubmit}
         >
           <Box>
             <Stack spacing={3} direction={"column"} sx={{ m: 4 }}>
@@ -125,30 +96,13 @@ import {
               <TableCell >Sl No</TableCell>
                 <TableCell align="center"> Name</TableCell>
                 <TableCell align="right">Email</TableCell>
-                <TableCell align="right">Phone</TableCell>
-                <TableCell align="right">pincode</TableCell>
                 <TableCell align="right">Address</TableCell>
                 <TableCell align="right">Proof</TableCell>
-                <TableCell align="right">Place</TableCell>
-                <TableCell align="right">District</TableCell>
                 <TableCell align="right">Actions</TableCell>
+  
               </TableRow>
             </TableHead>
-
             <TableBody>
-            {/* {PlaceData.map((place, key) => (
-                  <TableRow
-                  key={key}
-                  sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                >
-                 < TableCell>{key+1}</TableCell>
-                  <TableCell component="th" scope="row" align="center">
-                    {place.districtId.districtname}
-                  </TableCell>
-                  <TableCell align="right">
-                  </TableCell>
-                </TableRow>   
-              ))} */}
               {collegeData.map((college, key) => (
                 <TableRow
                   key={key}
@@ -156,26 +110,22 @@ import {
                 >
                  < TableCell>{key+1}</TableCell>
                   <TableCell component="th" scope="row" align="center">
-                    {college.name}
+                    {college.collegename}
                   </TableCell>
                   <TableCell align="right">{college.email}</TableCell>
-                  <TableCell align="right">{college.number}</TableCell> 
+                  <TableCell align="right">
                   <TableCell align="right">{college.address}</TableCell>
-                  <TableCell align="right">{college.proof}</TableCell>
-                  <TableCell align="right">{college.placeId.placename}</TableCell>
-                  <TableCell align="right">{college.placeId.districtId.districtname}</TableCell>
-
-                  <Button variant="outlined" onClick={() =>handleDelete(college._id) }>Delete</Button>
-
-                  </TableRow>
-                   ))}
+                
+                    <Button variant="outlined" onClick={() =>handleDelete(college._id) }>Delete</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
       </Box>
     );
-  
-  }
+              }
           
   export default CollegeApproval;
   

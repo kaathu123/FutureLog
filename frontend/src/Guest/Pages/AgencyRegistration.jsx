@@ -11,31 +11,43 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import styled from "@emotion/styled";
 import { useState } from "react";
 import axios from "axios";
 
-const User = () => {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [address, setAddress] = useState("");
-  const [phone, setPhone] = useState("");
-  const [pincode, setPincode] = useState("");
-  const [photo, setPhoto] = useState("");
-  const [PlaceId, setPlaceId] = useState("");
-  const [DistrictId, setDistrictId] = useState("");
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
+
+const Agency = () => {
+  const [agencyName, setAgencyName] = useState("");
+  const [email, setAgencyEmail] = useState("");
+  const [password, setAgencyPassword] = useState("");
+  const [agencyAddress, setAgencyAddress] = useState("");
+  const [agencyPhoto, setAgencyPhoto] = useState("");
+  const [agencyProof, setAgencyProof] = useState("");
+  const [agencyPlaceId, setAgencyPlaceId] = useState("");
+  const [agencyDistrictId, setAgencyDistrictId] = useState("");
   const [placeData, setPlaceData] = useState([]);
   const [districtData, setDistrictData] = useState([]);
 
   const fetchPlace = (Id) => {
-    axios
-      .get(`http://localhost:5000/Place/${Id}`)
+    axios.get(`http://localhost:5000/Place/${Id}`)
       .then((response) => {
         console.log(response.data.places);
         setPlaceData(response.data.places);
       })
       .catch((error) => {
-        console.error("Error fetching places:", error);
+        console.error("Error fetching district data:", error);
       });
   };
 
@@ -47,7 +59,7 @@ const User = () => {
         setDistrictData(response.data.districts);
       })
       .catch((error) => {
-        console.error("Error fetching districts:", error);
+        console.error("Error fetching district data:", error);
       });
   };
 
@@ -55,38 +67,32 @@ const User = () => {
     fetchDistrict();
   }, []);
 
-  const handleFileSelect = (event) => {
-    const file = event.target.files[0];
-    setPhoto(file);
-  };
-
   const handleSubmit = (event) => {
-    const postData = {
-      username: name,
-      email: email,
-      password: password,
-      useraddress: address,
-      userphone: phone,
-      userpincode: pincode,
-      userphoto: photo,
-      placeId: PlaceId,
-      districtId: DistrictId,
-    };
+    event.preventDefault();
 
+    const postData = {
+      agencyname: agencyName,
+      email,
+      password,
+      address: agencyAddress,
+      photo: agencyPhoto,
+      proof: agencyProof,
+      placeId: agencyPlaceId,
+      districtId: agencyDistrictId,
+    };
     axios
-      .post("http://localhost:5000/User", postData)
+      .post("http://localhost:5000/Agency", postData)
       .then((response) => {
-        console.log("goo fast", response.data);
-        setName("");
-        setEmail("");
-        setPassword("");
-        setAddress("");
-        setPhone("");
-        setPincode("");
-        setPhoto("");
-        setPlaceId("");
-        setDistrictId("");
-        fetchPlace(DistrictId);
+        console.log(response.data);
+        setAgencyName("");
+        setAgencyEmail("");
+        setAgencyPassword("");
+        setAgencyAddress("");
+        setAgencyPhoto("");
+        setAgencyProof("");
+        setAgencyPlaceId("");
+        setAgencyDistrictId("");
+        fetchPlace(agencyDistrictId);
         fetchDistrict();
       })
       .catch((error) => {
@@ -98,7 +104,7 @@ const User = () => {
     <Box
       sx={{
         display: "flex",
-        height: "180vh",
+        height: "150vh",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
@@ -107,7 +113,7 @@ const User = () => {
       <Card
         sx={{
           display: "flex",
-          height: 1000,
+          height: 800,
           width: 700,
           px: 5,
           justifyContent: "center",
@@ -118,20 +124,20 @@ const User = () => {
       >
         <Box>
           <Typography variant="h3" sx={{ m: 4 }}>
-            User Registration Form
+            Agency Registration Form
           </Typography>
           <Stack spacing={2} direction="column" sx={{ m: 2 }}>
             <TextField
               id="outlined-basic"
-              label="User Name"
+              label="Agency Name"
               variant="outlined"
-              onChange={(event) => setName(event.target.value)}
+              onChange={(event) => setAgencyName(event.target.value)}
             />
             <TextField
               id="outlined-basic"
               label="Email"
               variant="outlined"
-              onChange={(event) => setEmail(event.target.value)}
+              onChange={(event) => setAgencyEmail(event.target.value)}
             />
 
             <TextField
@@ -139,28 +145,28 @@ const User = () => {
               label="Password"
               type="password"
               autoComplete="current-password"
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => setAgencyPassword(event.target.value)}
             />
             <TextField
               id="outlined-multiline-flexible"
               label="Address"
               multiline
               maxRows={4}
-              onChange={(event) => setAddress(event.target.value)}
+              onChange={(event) => setAgencyAddress(event.target.value)}
             />
             <TextField
               id="outlined-multiline-flexible"
-              label="Phone Number"
+              label="Photo"
               multiline
               maxRows={4}
-              onChange={(event) => setPhone(event.target.value)}
+              onChange={(event) => setAgencyPhoto(event.target.value)}
             />
             <TextField
               id="outlined-multiline-flexible"
-              label="PinCode"
+              label="Proof"
               multiline
               maxRows={4}
-              onChange={(event) => setPincode(event.target.value)}
+              onChange={(event) => setAgencyProof(event.target.value)}
             />
             <Stack spacing={3} direction={"column"} sx={{ m: 4 }}>
               <FormControl fullWidth>
@@ -172,10 +178,10 @@ const User = () => {
                   label="category"
                   // onChange={handleChange}
                   onChange={(event) => {
-                    setDistrictId(event.target.value);
+                    setAgencyDistrictId(event.target.value);
                     fetchPlace(event.target.value);
                   }}
-                  value={DistrictId}
+                  value={agencyDistrictId}
                 >
                   {/* //view list of details */}
                   {districtData.map((district, key) => (
@@ -193,8 +199,8 @@ const User = () => {
                   // value={age}
                   label="category"
                   // onChange={handleChange}
-                  onChange={(event) => setPlaceId(event.target.value)}
-                  value={PlaceId}
+                  onChange={(event) => setAgencyPlaceId(event.target.value)}
+                  value={agencyPlaceId}
                 >
                   {/* //view list of details */}
                   {placeData.map((place, key) => (
@@ -204,13 +210,6 @@ const User = () => {
                   ))}
                 </Select>
               </FormControl>
-              <TextField
-                id="outlined-multiline-flexible"
-                label="Photo"
-                multiline
-                maxRows={4}
-                onChange={(event) => setPhoto(event.target.value)}
-              />
               <Button variant="contained" type="submit">
                 Save
               </Button>
@@ -221,4 +220,4 @@ const User = () => {
     </Box>
   );
 };
-export default User;
+export default Agency;
