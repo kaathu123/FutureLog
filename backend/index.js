@@ -483,12 +483,13 @@ const College = mongoose.model('college', collegeSchemaStructure)
 
 
 //college
-app.post('/college', upload.fields([
+app.post('/college', 
+upload.fields([
     { name: "proof", maxCount: 1 },
   ]), 
   async (req, res) => {
     var fileValue = JSON.parse(JSON.stringify(req.files));
-    var proofimgsrc = `http://127.0.0.1:${port}/images/${fileValue.user_proof[0].filename}`;
+    var proofimgsrc = `http://127.0.0.1:${port}/images/${fileValue.proof[0].filename}`;
     try {
         const { name, email, password, address, number,  placeId } = req.body;
 
@@ -573,23 +574,28 @@ const User = mongoose.model("user", userSchemaStructure);
 
 //user
 app.post(
-    "/User", async (req, res) => {
-        console.log(req.body);
-        const {
-            username,
-            email,
-            password,
-            useraddress,
-            userphone,
-            userpincode,
-            userphoto,
-            placeId,
-        } = req.body;
+    "/User", 
+    upload.fields([
+        { name: "userphoto", maxCount: 1 },
+      ]),
+    async (req, res) => {
+        var fileValue = JSON.parse(JSON.stringify(req.files));
+    var photoimgsrc = `http://127.0.0.1:${port}/images/${fileValue.userphoto[0].filename}`;
         try {
-            const existingUser = await User.findOne({ username });
-            if (existingUser) {
-                return res.status(400).json({ message: "Username already exists" });
-            }
+            const {
+                username,
+                email,
+                password,
+                useraddress,
+                userphone,
+                userpincode,
+              
+                placeId,
+            } = req.body;
+            // const existingUser = await User.findOne({ username });
+            // if (existingUser) {
+            //     return res.status(400).json({ message: "Username already exists" });
+            // }
             const newUser = new User({
                 username,
                 email,
@@ -597,8 +603,8 @@ app.post(
                 useraddress,
                 userphone,
                 userpincode,
-                userphoto,
-                placeId,
+                userphoto:photoimgsrc,
+                placeId
             });
 
             await newUser.save();
@@ -639,8 +645,9 @@ const collegecourseSchemaStructure = new mongoose.Schema({
         required: true
     },
     collegecoursestatus: {
-        type: Number,
-        required: true
+        type:Boolean,
+        default: false
+
     }
 
 })
@@ -650,30 +657,29 @@ const Collegecourse = mongoose.model('collegecourse', collegecourseSchemaStructu
 
 //collegecourse Schema
 app.post('/collegecourse', async (req, res) => {
-    const { collegename, coursename, collegecoursestatus } = req.body;
     try {
+        const { courseId,collegeId } = req.body;
+console.log(req.body);
+        // let college = await College.findOne({ collegename });
+        // let course = await Course.findOne({ coursename });
 
-        let college = await College.findOne({ collegename });
-        let course = await Course.findOne({ coursename });
+        // if (!college && course) {
+        //     college = new College({
+        //         collegename
+        //     });
+        //     await college.save();
 
-        if (!college && course) {
-            college = new College({
-                collegename
-            });
-            await college.save();
-
-            course = new Course({
-                coursename
-            });
-            await course.save();
-        }
+        //     course = new Course({
+        //         coursename
+        //     });
+        //     await course.save();
+        // }
 
         let newcollegecourse = new Collegecourse({
-            collegename: collegename,
-            coursename: coursename,
-            collegecoursestatus: collegecoursestatus,
-            collegeId: college._id,
-            courseId: course._id
+            
+            collegeId,
+            courseId,
+            
         })
 
         await newcollegecourse.save()
@@ -689,9 +695,9 @@ app.post('/collegecourse', async (req, res) => {
 //collegecourse populate
 app.get('/collegecourse', async (req, res) => {
     try {
-        const collegecourses = await Collegecourse.find().populate('collegeId', 'courseId').exec();
+        const collegecourses = await Collegecourse.find().populate('courseId').exec();
         console.log('successfully retrived', collegecourses);
-        res.json(collegecourses);
+        res.json({collegecourses});
     }
     catch (error) {
         console.error('error', error);
@@ -942,17 +948,25 @@ const agencySchemaStructure = new mongoose.Schema({
 const Agency = mongoose.model("agency", agencySchemaStructure);
 
 //agency
-app.post("/Agency", async (req, res) => {
-    const { agencyname, email, password, address, photo, proof, placeId } =
-        req.body;
-    try {
+app.post("/Agency",
+upload.fields([
+    { name: "proof", maxCount: 1 },
+    { name: "photo", maxCount: 1 },
+  ]), 
+ async (req, res) => {
+    var fileValue = JSON.parse(JSON.stringify(req.files));
+    var proofimgsrc = `http://127.0.0.1:${port}/images/${fileValue.proof[0].filename}`;
+    var photoimgsrc = `http://127.0.0.1:${port}/images/${fileValue.photo[0].filename}`;
+
+     try {
+        const { agencyname, email, password, address, placeId } = req.body;
         let newagency = new Agency({
             agencyname,
             email,
             password,
             address,
-            photo,
-            proof,
+            photo:photoimgsrc,
+            proof:proofimgsrc,
             placeId,
         });
         await newagency.save();

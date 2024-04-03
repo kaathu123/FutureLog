@@ -4,18 +4,18 @@ import axios from "axios";
 function createData(name, calories, fat, carbs, protein) {
     return { name, calories, fat, carbs, protein };
   }
-  const rows = [
-    createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-    createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-    createData('Eclair', 262, 16.0, 24, 6.0),
-    createData('Cupcake', 305, 3.7, 67, 4.3),
-    createData('Gingerbread', 356, 16.0, 49, 3.9),
-  ];
+  // const rows = [
+  //   createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
+  //   createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
+  //   createData('Eclair', 262, 16.0, 24, 6.0),
+  //   createData('Cupcake', 305, 3.7, 67, 4.3),
+  //   createData('Gingerbread', 356, 16.0, 49, 3.9),
+  // ];
 
 const Collegecourse = () => {
-  const [collegeId, setcollegeId] = useState('');
+  const [categoryId, setcategoryId] = useState('');
   const [courseId, setCourseId] = useState('');
-  const [collegeData, setCollegeData] = useState([]);
+  const [categoryData, setCategoryData] = useState([]);
   const [courseData, setCourseData] = useState([]);
 
 
@@ -23,22 +23,25 @@ const Collegecourse = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = {
-     collegename:collegeId,
-     coursename:courseId,
+     collegeId:sessionStorage.getItem('cId'),
+     courseId:courseId,
     }; //usestate and schema name wrapped as object and it assigned to variable data
     axios.post('http://localhost:5000/Collegecourse', data)
     .then((response) => {
       console.log(response.data);
-      setcollegeId('')
+      setcategoryId('');
+      setCourseId('');
+      fetchCourse(categoryId);
+      fetchCategory();
     
     })
   }
 
 
-  const fetchCollege = () => {
-    axios.get(`http://localhost:5000/College/`).then((response) => {
-      console.log(response.data.colleges);
-      setCollegeData(response.data.colleges) 
+  const fetchCategory = () => {
+    axios.get(`http://localhost:5000/Category/`).then((response) => {
+      console.log(response.data.categorys);
+      setCategoryData(response.data.categorys) 
     })
     .catch((error) => {
       console.error('Error fetching  data:', error);
@@ -57,9 +60,10 @@ const Collegecourse = () => {
 
 
   useEffect(() => {
-    fetchCollege()
-    fetchCourse()
- }, [])
+    fetchCategory();
+    fetchCourse();
+   
+ }, []);
   return (
     <Box  sx={{ display: "flex", justifyContent: "center",alignItems:'center',height:'100vh',flexDirection:'column' }}>
       <Card 
@@ -67,7 +71,7 @@ const Collegecourse = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          height: "100vh",
+          height: "500vh",
           flexDirection: "column",
         }}
         component={'form'} onSubmit={handleSubmit}
@@ -75,8 +79,8 @@ const Collegecourse = () => {
         <Box
           sx={{
             display: "flex",
-            height: 250,
-            width: 400,
+            height: 800,
+            width: 600,
             justifyContent: "center",
             px: 5,
           }}
@@ -84,23 +88,23 @@ const Collegecourse = () => {
         >
           <Stack spacing={2} direction={"column"} sx={{ m: 4 }}>
             <Typography variant="h3" sx={{ m: 4 }}>
-              Place
+          CollegeCourse
             </Typography>
             <FormControl fullWidth>
-              <InputLabel id="demo-simple-select-label">collegecourse</InputLabel>
+              <InputLabel id="demo-simple-select-label">category</InputLabel>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
-                label="college"
+                label="category"
                 // onChange={handleChange}
-                onChange={(event)=>setcollegeId(event.target.value)}
-                value={collegeId}
+                onChange={(event)=>setcategoryId(event.target.value)}
+                value={categoryId}
               >
               {/* //view list of districts  */}
-               {collegeData.map((college, key) => (
-                  <MenuItem key={key} value={college._id}
+               {categoryData.map((category, key) => (
+                  <MenuItem key={key} value={category._id}
                >
-                  {college.collegename}
+                  {category.categoryname}
                </MenuItem>
                 ))}
 
@@ -115,10 +119,10 @@ const Collegecourse = () => {
                 value={courseId}
               >
               {/* //view list of districts  */}
-               {courseData.map((courseId, key) => (
+               {courseData.map((course, key) => (
                   <MenuItem key={key} value={course._id}
                >
-                  {course.coursename}
+                  {course && course.coursename ? `${course.coursename}` : 'Course Name Unavailable'}
                </MenuItem>
                 ))}
 

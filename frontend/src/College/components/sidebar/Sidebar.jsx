@@ -64,12 +64,12 @@ const Sidebar = () => {
                   </li></Link>
                   <p className='title'>LISTS</p>
                   <Link
-                     to='/admin/colleges'
+                     to='/college/Collegecourse'
                      style={{ textDecoration: 'none' }}
                   >
                      <li>
                         <PersonOutlineIcon className='icon' />
-                        <span>Colleges</span>
+                        <span>Add Course</span>
                      </li>
                   </Link>
                   <Link

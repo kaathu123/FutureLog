@@ -66,22 +66,41 @@ const Agency = () => {
   useEffect(() => {
     fetchDistrict();
   }, []);
+  
+ const handleFileProof = (event) => {
+  const file = event.target.files[0];
+  setAgencyProof(file);
+};
+const handleFilePhoto = (event) => {
+  const file = event.target.files[0];
+  setAgencyPhoto(file);
+};
 
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    const postData = {
-      agencyname: agencyName,
-      email,
-      password,
-      address: agencyAddress,
-      photo: agencyPhoto,
-      proof: agencyProof,
-      placeId: agencyPlaceId,
-      districtId: agencyDistrictId,
-    };
+    // const postData = {
+    //   agencyname: agencyName,
+    //   email,
+    //   password,
+    //   address: agencyAddress,
+    //   photo: agencyPhoto,
+    //   proof: agencyProof,
+    //   placeId: agencyPlaceId,
+    //   districtId: agencyDistrictId,
+    // };
+    const formData= new FormData();
+    formData.append('agencyname',agencyName );
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('address', agencyAddress);
+    formData.append('photo', agencyPhoto);
+    formData.append('proof', agencyProof);
+    formData.append('placeId',agencyPlaceId );
+    formData.append('districtId', agencyDistrictId);
+    
     axios
-      .post("http://localhost:5000/Agency", postData)
+      .post("http://localhost:5000/Agency", formData)
       .then((response) => {
         console.log(response.data);
         setAgencyName("");
@@ -154,20 +173,34 @@ const Agency = () => {
               maxRows={4}
               onChange={(event) => setAgencyAddress(event.target.value)}
             />
-            <TextField
-              id="outlined-multiline-flexible"
-              label="Photo"
-              multiline
-              maxRows={4}
-              onChange={(event) => setAgencyPhoto(event.target.value)}
-            />
-            <TextField
-              id="outlined-multiline-flexible"
-              label="Proof"
-              multiline
-              maxRows={4}
-              onChange={(event) => setAgencyProof(event.target.value)}
-            />
+             <Button
+                className="Proof"
+                component="label"
+                role={undefined}
+                variant="contained"
+                tabIndex={-1}
+                startIcon={<CloudUploadIcon />}
+              >
+                Upload Proof
+                <VisuallyHiddenInput
+                  type="file"
+                  onChange={handleFileProof}
+                />
+              </Button>
+              <Button
+                className="Proof"
+                component="label"
+                role={undefined}
+                variant="contained"
+                tabIndex={-1}
+                startIcon={<CloudUploadIcon />}
+              >
+                Upload Photo
+                <VisuallyHiddenInput
+                  type="file"
+                  onChange={handleFilePhoto}
+                />
+              </Button>
             <Stack spacing={3} direction={"column"} sx={{ m: 4 }}>
               <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">District</InputLabel>

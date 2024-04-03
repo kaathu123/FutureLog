@@ -13,6 +13,7 @@ import Adminlogin from './Pages/adminlogin'
 import CollegeApproval from './Pages/CollegeApproval'
 import Sidebar from "./components/sidebar/Sidebar";
 import Navbar from "./components/navbar/Navbar";
+import Packageschema from "./Packageschema";
 
 const styles = {
   margin: 2,
@@ -48,7 +49,7 @@ function App() {
             <Route path="/Myprofile" element={<Myprofile/>}/>
             <Route path="/adminlogin" element={<Adminlogin/>}/>
             <Route path="/CollegeApproval" element={<CollegeApproval/>}/>
-      
+            <Route path="/Packageschema" element={<Packageschema/>}/>
 
 
           </Routes>

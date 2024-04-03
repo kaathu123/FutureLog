@@ -13,7 +13,19 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import axios from "axios";
-
+import styled from "@emotion/styled";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+const VisuallyHiddenInput = styled("input")({
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  height: 1,
+  overflow: "hidden",
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  whiteSpace: "nowrap",
+  width: 1,
+});
 const User = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -55,26 +67,26 @@ const User = () => {
     fetchDistrict();
   }, []);
 
-  const handleFileSelect = (event) => {
+  const handleFilePhoto= (event) => {
     const file = event.target.files[0];
     setPhoto(file);
   };
 
   const handleSubmit = (event) => {
-    const postData = {
-      username: name,
-      email: email,
-      password: password,
-      useraddress: address,
-      userphone: phone,
-      userpincode: pincode,
-      userphoto: photo,
-      placeId: PlaceId,
-      districtId: DistrictId,
-    };
-
+    event.preventDefault();
+   
+    const formData = new FormData();
+    formData.append('username', name);
+    formData.append('email', email);
+    formData.append('password', password);
+    formData.append('useraddress', address);
+    formData.append('userphone', phone);
+    formData.append('userpincode', pincode);
+    formData.append('userphoto', photo);
+    formData.append('placeId', PlaceId);
+    formData.append('districtId', DistrictId);
     axios
-      .post("http://localhost:5000/User", postData)
+      .post("http://localhost:5000/User", formData)
       .then((response) => {
         console.log("goo fast", response.data);
         setName("");
@@ -204,13 +216,20 @@ const User = () => {
                   ))}
                 </Select>
               </FormControl>
-              <TextField
-                id="outlined-multiline-flexible"
-                label="Photo"
-                multiline
-                maxRows={4}
-                onChange={(event) => setPhoto(event.target.value)}
-              />
+              <Button
+                className="Photo"
+                component="label"
+                role={undefined}
+                variant="contained"
+                tabIndex={-1}
+                startIcon={<CloudUploadIcon />}
+              >
+                Upload Photo
+                <VisuallyHiddenInput
+                  type="file"
+                  onChange={handleFilePhoto}
+                />
+              </Button>
               <Button variant="contained" type="submit">
                 Save
               </Button>
